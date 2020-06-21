@@ -1,0 +1,8 @@
+prefix=/home/sifan/slam-package/K_means/catkin_ws/src/PSN/cmake-build-debug/devel
+
+Name: K_means_localization
+Description: Description of K_means_localization
+Version: 0.0.0
+Cflags: -I/home/sifan/slam-package/K_means/catkin_ws/src/PSN/include
+Libs: -L/home/sifan/slam-package/K_means/catkin_ws/src/PSN/cmake-build-debug/devel/lib -lpointsiam_ros
+Requires: pcl_ros roscpp rospy sensor_msgs std_msgs

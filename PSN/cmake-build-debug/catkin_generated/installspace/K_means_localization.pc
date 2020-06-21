@@ -1,0 +1,8 @@
+prefix=/usr/local
+
+Name: K_means_localization
+Description: Description of K_means_localization
+Version: 0.0.0
+Cflags: -I/usr/local/include
+Libs: -L/usr/local/lib -lpointsiam_ros
+Requires: pcl_ros roscpp rospy sensor_msgs std_msgs
