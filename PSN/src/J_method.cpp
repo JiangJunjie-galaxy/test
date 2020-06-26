@@ -388,9 +388,9 @@ void chatterCallback(const nav_msgs::Odometry::ConstPtr& msg)
     prediction_motion.y = real_motion.y + odom_parameter.trans*sin(real_motion.theta+odom_parameter.rot1);
     prediction_motion.theta = real_motion.theta + odom_parameter.rot1 + odom_parameter.rot2;
 
-    prediction_motion.x = now_motion.x;
-    prediction_motion.y = now_motion.y;
-    prediction_motion.theta = now_motion.theta;
+    // prediction_motion.x = now_motion.x;
+    // prediction_motion.y = now_motion.y;
+    // prediction_motion.theta = now_motion.theta;
     
     cout<<"prediction_motion的读数是"<<prediction_motion.x<<"    "<<prediction_motion.y<<"    "<<prediction_motion.theta<<endl;
 
@@ -499,11 +499,14 @@ void chatterCallback(const nav_msgs::Odometry::ConstPtr& msg)
            COV = (I - K*H)*COV;
           }
    
-
+    //set the error
+    if(2*sqrt(COV(0, 0)) < 1 && 2*sqrt(COV(1, 1)) < 1 && 2*sqrt(COV(2, 2)) < 1)
+    {
     prediction_motion.x = MU(0, 0);
     prediction_motion.y = MU(1, 0);
     prediction_motion.theta = MU(2, 0);
-    
+    primitive_cov = COV;
+    }
     
     last_motion = now_motion;
     //real_last_motion = real_now_motion;
@@ -511,16 +514,16 @@ void chatterCallback(const nav_msgs::Odometry::ConstPtr& msg)
     cout<<"里程计正常调用"<<endl;
     //cout<<relative_x<<endl;
     real_motion = prediction_motion;
-    primitive_cov = COV;
+    //primitive_cov = COV;
 
-    cout<<"目前机器人的定位是"<<MU(0, 0)<<"   "<<real_motion.y<<"和"<<real_motion.theta<<endl;
+    cout<<"目前机器人的定位是"<<real_motion.x<<"   "<<real_motion.y<<"和"<<real_motion.theta<<endl;
     nav_msgs::Odometry cal_odom;
     cal_odom.header.stamp = ros::Time::now();
     cal_odom.header.frame_id = "odom";
-    cal_odom.pose.pose.position.x = MU(0);
-    cal_odom.pose.pose.position.y = MU(1);
+    cal_odom.pose.pose.position.x = real_motion.x;
+    cal_odom.pose.pose.position.y = real_motion.y;
     cal_odom.pose.pose.position.z = 0.0;
-    geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(MU(2));
+    geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(real_motion.theta);
     cal_odom.pose.pose.orientation = odom_quat;
     cal_odom_pub.publish(cal_odom);
     
