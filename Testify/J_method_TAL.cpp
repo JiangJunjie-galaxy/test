@@ -172,14 +172,18 @@ void Lasercallback(const sensor_msgs::LaserScan::ConstPtr& msg)
         //double pillar_distance_point1=0;  
         //double pillar_distance_point2=0;
         //double pillar_distance_point3=0;
-        for(int j=0 ; j<count; j++)
+        for(int j = i ; j<count; j++)
         {
-             if((array1[i]-array1[j])*(array1[i]-array1[j]) +(array2[i]-array2[j])*(array2[i]-array2[j])<1)
+             if((array1[i]-array1[j])*(array1[i]-array1[j]) +(array2[i]-array2[j])*(array2[i]-array2[j]) < 1)
           {
               sumx =array1[j]+sumx;
               sumy =array2[j]+sumy; 
               counter++;
             
+          }
+          if((array1[i]-array1[j])*(array1[i]-array1[j]) +(array2[i]-array2[j])*(array2[i]-array2[j]) > 1)
+          {
+            break;
           }
         }
         meansumx = sumx/counter;
@@ -204,7 +208,7 @@ void Lasercallback(const sensor_msgs::LaserScan::ConstPtr& msg)
             //   d_radius.push_back(pillar_distance);
             pillar_distance = radius[i+counter/2]+0.029; 
             d_radius.push_back(pillar_distance);
-            d_angle.push_back(reflector_angle[i]);
+            d_angle.push_back(reflector_angle[i+counter/2]);
 
         }
         //剩下的依次和先前存入容器的数据比较
@@ -635,17 +639,17 @@ void chatterCallback(const nav_msgs::Odometry::ConstPtr& msg)
           {
             goto no_triangle;
           }
-          cout<<"1"<<endl;
+          //cout<<"1"<<endl;
           cout<<"更新后的三角定位此时反光柱的数量为"<<real_total<<endl;
           double max_x = arr_x[real_total-1];
           double max_y = arr_y[real_total-1];
           double max_d = arr_d[real_total-1];
           vector<double> theta_test;
           //cout<<"更新后的三角定位此时反光柱的数量为"<<real_total<<endl;
-          cout<<"4"<<endl;
+          //cout<<"4"<<endl;
           Eigen::MatrixXd A(real_total- 1, 2);
           Eigen::MatrixXd b(real_total- 1, 1);
-          cout<<"3"<<endl;
+          //cout<<"3"<<endl;
           for(int m = 0; m < real_total- 1; m++)
           {
              A(m, 0) = 2*(arr_x[m] - max_x);
@@ -666,9 +670,9 @@ void chatterCallback(const nav_msgs::Odometry::ConstPtr& msg)
                delta_theta = delta_theta + 2*PI;
              }
              theta_test.push_back(delta_theta);
-             cout<<"世界中的偏转为"<<atan2(arr_y[n] - position_final[1], arr_x[n] - position_final[0])<<endl;
-             cout<<"自身的偏转为"<<arr_a[n]<<endl;
-             cout<<"delta_theta的值是"<<delta_theta<<endl;
+             //cout<<"世界中的偏转为"<<atan2(arr_y[n] - position_final[1], arr_x[n] - position_final[0])<<endl;
+             //cout<<"自身的偏转为"<<arr_a[n]<<endl;
+             //cout<<"delta_theta的值是"<<delta_theta<<endl;
              // theta = theta + delta_theta;
           }
           //纠正角度
@@ -717,6 +721,7 @@ void chatterCallback(const nav_msgs::Odometry::ConstPtr& msg)
           real_motion.x = position_final[0];
           real_motion.y = position_final[1];
           real_motion.theta = theta;
+          cout<<"机器人此时的位置为"<<position_final[0]<<"   "<<position_final[1];
 
     }
     else
@@ -741,7 +746,7 @@ void chatterCallback(const nav_msgs::Odometry::ConstPtr& msg)
                 observed_id = marker.z;
               }
             }
-            if(dist_min < 10)
+            if(dist_min < 1)
             {
             for (auto marker : marker_truth)
             { //extract marker ground truth
