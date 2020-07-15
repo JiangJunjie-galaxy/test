@@ -1,0 +1,11 @@
+<launch>
+
+<arg name="map_file" default="$(find K_means_localization)/map/map.yaml"/>
+<node pkg="map_server" type="map_server" name = "map_server" args="$(arg map_file)"/>
+
+<node pkg = "rosbag" type = "play" name = "rosbag" args = "/home/jjj/K_means/2020-01-08-22-01-48.bag --clock "/>
+
+<node pkg = "K_means_localization" type = "laserscan_receive" name = "laserscan_receive" output="screen"/>
+  
+
+</launch>
