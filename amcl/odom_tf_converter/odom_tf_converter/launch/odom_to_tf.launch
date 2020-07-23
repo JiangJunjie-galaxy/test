@@ -1,0 +1,16 @@
+<launch>
+	
+	<!--param name="table_description" command="$(find xacro)/xacro.py $(find gazebo_worlds)/objects/table.urdf.xacro" /-->
+
+
+	<!--rosparam file="$(find robot_sim_demo)/config/xbot-u_control.yaml" command="load" /-->
+	<node pkg="odom_tf_converter" type="odom_to_tf" name="odom_listener" output="screen" >
+        <!--param参数配置-->
+	<param name="source_frame" value="/base_link" />
+	<param name="target_frame" value="/odom" />
+
+        </node>
+
+	
+
+</launch>
