@@ -1,0 +1,6 @@
+string words
+uint8  num1
+uint8  num2
+---
+uint16 result
+

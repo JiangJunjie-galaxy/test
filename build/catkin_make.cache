@@ -1,0 +1,2 @@
+
+-DCATKIN_DEVEL_PREFIX=/home/jjj/Code/test/devel -DCMAKE_INSTALL_PREFIX=/home/jjj/Code/test/install -G Unix Makefiles
