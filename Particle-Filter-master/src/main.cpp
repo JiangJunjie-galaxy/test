@@ -38,8 +38,9 @@ int main(int argc, char **argv) {
 	//ros information
 	ros::init(argc, argv, "mcl");
 	ros::NodeHandle n;
-	landmarks_pub = n.advertise<sensor_msgs::PointCloud>("landmarks", 10);
+	landmarks_pub = n.advertise<sensor_msgs::PointCloud>("landmarks", 10, true);
 	ros::Publisher odometry_truth_pub = n.advertise<nav_msgs::Odometry>("odometry_truth", 10);
+	ros::Publisher particle_best_pub = n.advertise<nav_msgs::Odometry>("prediction_ground", 10);
 	ros::Publisher particlecloud_pub = n.advertise<geometry_msgs::PoseArray>("particlecloud", 10);
 	ros::Publisher landmarks_ob_pub = n.advertise<sensor_msgs::PointCloud>("landmarks_ob", 10);
 
@@ -96,7 +97,7 @@ int main(int argc, char **argv) {
 		landmarks.points[i].y = map.landmark_list[i].y_f;
 		cout<<landmarks.points[i].x<<endl;
 	}
-	//landmarks_pub.publish(landmarks);
+	landmarks_pub.publish(landmarks);
 
 
 
@@ -138,6 +139,7 @@ int main(int argc, char **argv) {
 	double cum_mean_error[3] = {0,0,0};
 	
 	for (int i = 0; i < num_time_steps; ++i) {
+		 //landmarks_pub.publish(landmarks);
 		// cout << "Time step: " << i << endl;
 		// Read in landmark observations for current time step.
 		ostringstream file;
@@ -271,6 +273,20 @@ int main(int argc, char **argv) {
 				best_particle = particles[i];
 			}
 		}
+
+		//demonstrate the best_particle
+		nav_msgs::Odometry particle_best;
+    	particle_best.header.stamp = ros::Time::now();
+    	particle_best.header.frame_id = "map";
+    	particle_best.pose.pose.position.x = best_particle.x;
+   		particle_best.pose.pose.position.y = best_particle.y;
+    	particle_best.pose.pose.position.z = 0.0;
+    	geometry_msgs::Quaternion odom_quat_2 = tf::createQuaternionMsgFromYaw(best_particle.theta);
+    	particle_best.pose.pose.orientation = odom_quat_2;
+		particle_best_pub.publish(particle_best);
+		//延迟一段时间，不然程序运行太快，发布不出来
+		loop.sleep();
+
 		double *avg_error = getError(gt[i].x, gt[i].y, gt[i].theta, best_particle.x, best_particle.y, best_particle.theta);
 
 		for (int j = 0; j < 3; ++j) {
@@ -337,7 +353,7 @@ int main(int argc, char **argv) {
 	//ros::Rate loop(200);
     while(ros::ok())
     {        
-	   landmarks_pub.publish(landmarks);
+	// landmarks_pub.publish(landmarks);
 	//  odometry_truth_pub.publish(odometry_truth);
        ros::spinOnce();
        loop.sleep();
